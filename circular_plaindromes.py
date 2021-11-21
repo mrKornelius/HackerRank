@@ -1,72 +1,69 @@
 import random
-import time
-import sys
-import cProfile
 
-sys.setrecursionlimit(10000)
-
-mem = {}
 def solve(s):
     results = []
 
+    # check palindromes for each rotation.
+    # More effective to check s+s instead and skip the rotation
+    # but harder to know the length of the palindrom in each word 
     for _ in range(len(s)):
         results.append(palin(s))
         s = s[1:] + s[:1]
+
     return results
 
+# Basically check palindromes from each starting point, i, in s, in two
+# ways, first odd length palindromes and then even length. Start with
+# two pointers l and r pointing at i, then try to expand outwards from
+# i and check if we still have a palindrome.
 def palin(s):
-    i = j = k = 0
-
-    p = 1
     mx = 0
-    while k < len(s):
-        i -= 1
-        j += 1
-        if i < 0 or j >= len(s) or s[i] != s[j]:
-            mx = max(mx, p)
-            k += 1
-            i = j = k
-            p = 1
-        else: # s[i] == s[j]:
-            p += 2
+    le = len(s)
+    for i in range(le):
+
+        # odd length pal.
+        l, r = i, i
+        while l >= 0 and r < le and s[l] == s[r]:     
+            if r-l+1 > mx:
+                mx = r-l+1
+            l -= 1
+            r += 1
         
-
-    i = k = 0
-    j = i +1
-    p = 2
-    while k < len(s):
-        i -= 1
-        j += 1
-        if i < 0 or j >= len(s) or s[i] != s[j]:
-            mx = max(mx, p)
-            k += 1
-            i = k
-            j = i + 1
-            p = 2
-        else: # s[i] == s[j]:
-            p += 2
-
-
+        # even length pal.
+        l, r = i, i+1
+        while l >= 0 and r < le and s[l] == s[r]:     
+            if r-l+1 > mx:
+                mx = r-l+1
+            l -= 1
+            r += 1
+        
     return mx
 
 
-
 if __name__ == '__main__':    
-    pr = cProfile.Profile()
-    pr.enable()
-
-    tic = time.perf_counter()
     x = solve('aaaaabbbbaaaa')
     print(x)
-    assert x == [12,12,10,8,8,9,11,13,11,9,8,8,10], 'error'
+    assert x == [12,12,10,8,8,9,11,13,11,9,8,8,10], 'error 1'
 
-    t = ''.join(['abc'[random.randrange(3)] for _ in range(2000)])
-    print(solve(t))
+    x = solve('eededdeedede')
+    print(x)
+    assert x == [5,7,7,7,7,9,9,9,9,7,5,4], 'error 2'
 
-    toc = time.perf_counter()
-    print(f'Elapsed time: {toc-tic:.04f}s')
-    
-    pr.disable()
-    pr.print_stats(sort='cumtime')
+    x = solve('cacbbba')
+    print(x)
+    assert x == [3,3,3,3,3,3,3], 'error 3'
+
+    x = solve('abcdefgh')
+    print(x)
+    assert x == [1,1,1,1,1,1,1,1], 'error 4'
+
+    x = solve('aaaaaaaa')
+    print(x)
+    assert x == [8,8,8,8,8,8,8,8], 'error 5'
+
+    t = ''.join(['abc'[random.randrange(2)] for _ in range(1000)])
+    x = solve(t)
+    print(x)
+
     
 
